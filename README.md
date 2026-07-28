@@ -8,11 +8,10 @@ Use direto no navegador em [tarjador.ia.br](https://tarjador.ia.br), ou instale
 a versão desktop (documento nunca sai da sua máquina) — veja abaixo.
 
 Este repositório é também o **código-fonte correspondente**, exigido pela
-licença AGPL-3.0, do que roda em [tarjador.ia.br](https://tarjador.ia.br) e no
-espelho [tarjador.streamlit.app](https://tarjador.streamlit.app): a árvore
-abaixo (`app.py`, `tarjador/`, `desktop/`) é a mesma coisa que está hospedada,
-sem os binários de terceiros que cada ambiente baixa/monta à parte (Tesseract,
-pesos do BERT).
+licença AGPL-3.0, do que roda em [tarjador.ia.br](https://tarjador.ia.br): a
+árvore abaixo (`app.py`, `tarjador/`, `desktop/`) é a mesma coisa que está
+hospedada, sem os binários de terceiros que o ambiente baixa/monta à parte
+(Tesseract, pesos do BERT).
 
 ## Downloads (Windows)
 
