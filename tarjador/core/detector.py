@@ -14,6 +14,3 @@ from ._detector_full import (  # noqa: F401
     Occurrence,
     detect_entities,
 )
-
-# Identifica o motor ativo (usado como indicador na UI).
-BACKEND = "Presidio + spaCy"
