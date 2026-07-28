@@ -13,7 +13,7 @@ import fitz  # PyMuPDF
 import streamlit as st
 
 from tarjador.ui.pdf_review import pdf_review, pdf_media_url
-from tarjador.core.detector import DEFAULT_ENTITIES, BACKEND
+from tarjador.core.detector import DEFAULT_ENTITIES
 from tarjador.core.pipeline import analyze, analyze_seals, apply_redactions
 from tarjador.core.redactor import (IMAGE_ENTITY_TIPO, SEAL_ENTITY_TIPO,
                                     cpf_descaracterizado)
@@ -667,7 +667,7 @@ def _mostrar_mais_informacoes():
         """
     )
     st.divider()
-    st.caption(f"Motor de detecção: {BACKEND}")
+    st.caption("Motor de detecção: regras específicas (CPF, celular, telefone, RG, e-mail) + IA para nomes")
     # Aviso de licença e créditos. Não é enfeite: a CC BY-SA do modelo de
     # português do spaCy EXIGE atribuição visível, e a AGPL exige que o
     # usuário de um serviço em rede saiba como obter o código-fonte
