@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div id="root">
+    <div id="toolbar">
+      <button id="btn-texto" title="Modo padrão: selecione/copie texto; clique numa área em branco e arraste para mover o documento; clique nas caixas para tarjar/não tarjar">🔤 Texto</button>
+      <button id="btn-rolo" title="Rolo de tarja: pinte sobre qualquer texto para criar uma tarja manual (clique numa tarja manual para removê-la)">🖌️ Rolo</button>
+      <span class="sep"></span>
+      <button id="btn-prevdet" title="Volta para a página anterior que contém detecção">⏮ Detecção</button>
+      <button id="btn-nextdet" title="Pula para a próxima página que contém detecção">Detecção ⏭</button>
+      <span class="sep"></span>
+      <input id="pageinput" type="number" min="1" value="1"
+             title="Digite o número da página e aperte Enter"/>
+      <span id="pagetotal">/ 1</span>
+      <span class="sep"></span>
+      <button id="btn-zoomout" title="Menos zoom (ou Ctrl+rolagem)">−</button>
+      <span id="zoomlabel">100%</span>
+      <button id="btn-zoomin" title="Mais zoom (ou Ctrl+rolagem)">+</button>
+      <button id="btn-fit" title="Ajustar à largura">⤢ Ajustar</button>
+      <button id="btn-max" title="Maximizar o visualizador (tela cheia — Esc para sair)">⛶</button>
+    </div>
+    <div id="scroller"></div>
+    <div id="status"><div class="spinner"></div><div id="status-text">Carregando documento…</div></div>
+  </div>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>

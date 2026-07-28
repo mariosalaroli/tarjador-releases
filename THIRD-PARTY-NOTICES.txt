@@ -1,0 +1,159 @@
+AVISOS DE TERCEIROS — Tarjador
+==============================
+
+O Tarjador é distribuído sob a GNU Affero General Public License v3.0
+(ver LICENSE). Este arquivo lista os componentes de terceiros incluídos na
+distribuição e suas respectivas licenças, cumprindo as obrigações de
+atribuição de cada uma.
+
+ARQUIVO GERADO por desktop/gera_notices.py — não editar à mão.
+
+
+COMPONENTES PRINCIPAIS
+----------------------------------------------------------------------
+
+PyMuPDF — GNU AGPL v3.0 (ou licença comercial Artifex)
+     https://github.com/pymupdf/PyMuPDF
+     É por causa desta dependência que o Tarjador é distribuído sob
+     AGPL-3.0: a licença é copyleft e alcança a obra combinada.
+
+Tesseract OCR — Apache-2.0 (versão 5.4.0)
+     https://github.com/tesseract-ocr/tesseract
+     Copyright Google Inc. e colaboradores. Executável e bibliotecas
+     redistribuídos sem modificação (build UB Mannheim para Windows).
+
+Tesseract tessdata (por, eng) — Apache-2.0 (versão 4.0.0)
+     https://github.com/tesseract-ocr/tessdata_fast
+     Modelos de reconhecimento de texto, redistribuídos sem modificação.
+
+PDF.js — Apache-2.0 (versão 4.x)
+     https://github.com/mozilla/pdf.js
+     Copyright 2024 Mozilla Foundation. Redistribuído sem modificação.
+
+spaCy pt_core_news_sm — CC BY-SA 4.0 (versão 3.8.0)
+     https://spacy.io/models/pt
+     Modelo de língua portuguesa. ATRIBUIÇÃO EXIGIDA pela licença:
+     criado pela Explosion AI, licenciado sob Creative Commons
+     Attribution-ShareAlike 4.0 International.
+
+BERTimbau LeNER-Br (só na Edição Completa) — ver observação (versão —)
+     https://huggingface.co/pierreguillou/ner-bert-base-cased-pt-lenerbr
+     Modelo de NER jurídico, por Pierre Guillou, derivado do BERTimbau
+     (neuralmind/bert-base-portuguese-cased, licença MIT).
+     OBSERVAÇÃO: o autor não declarou licença para o modelo afinado.
+     Os pesos são redistribuídos sem modificação, com crédito integral.
+
+
+BIBLIOTECAS PYTHON
+----------------------------------------------------------------------
+
+  altair                       6.2.2          BSD License
+  annotated-doc                0.0.4          MIT
+  annotated-types              0.8.0          MIT
+  anyio                        4.14.2         MIT
+  attrs                        26.1.0         MIT
+  blinker                      1.9.0          MIT License
+  blis                         1.3.3          BSD
+  cachetools                   7.1.6          MIT
+  catalogue                    2.0.10         MIT
+  certifi                      2026.7.22      MPL-2.0
+  charset-normalizer           3.4.9          MIT
+  click                        8.4.2          BSD-3-Clause
+  cloudpathlib                 0.24.0         MIT License
+  colorama                     0.4.6          BSD License
+  confection                   1.3.3          MIT
+  cymem                        2.0.13         MIT
+  filelock                     3.32.0         MIT
+  fsspec                       2026.6.0       BSD-3-Clause
+  gitdb                        4.0.12         BSD License
+  GitPython                    3.1.57         BSD-3-Clause
+  h11                          0.16.0         MIT
+  hf-xet                       1.5.2          Apache-2.0
+  httpcore                     1.0.9          BSD-3-Clause
+  httptools                    0.8.0          MIT
+  httpx                        0.28.1         BSD-3-Clause
+  huggingface_hub              1.25.1         Apache-2.0
+  idna                         3.18           BSD-3-Clause
+  itsdangerous                 2.2.0          BSD License
+  Jinja2                       3.1.6          BSD License
+  jsonschema                   4.26.0         MIT
+  jsonschema-specifications    2025.9.1       MIT
+  markdown-it-py               4.2.0          MIT License
+  MarkupSafe                   3.0.3          BSD-3-Clause
+  mdurl                        0.1.2          MIT License
+  mpmath                       1.3.0          BSD
+  murmurhash                   1.0.15         MIT
+  narwhals                     2.24.0         MIT
+  networkx                     3.6.1          BSD-3-Clause
+  numpy                        2.2.6          BSD License
+  packaging                    26.2           Apache-2.0 OR BSD-2-Clause
+  pandas                       2.2.3          BSD 3-Clause License
+  phonenumbers                 9.0.35         Apache-2.0
+  pillow                       12.3.0         MIT-CMU
+  preshed                      3.0.13         MIT
+  presidio_analyzer            2.2.364        MIT
+  protobuf                     7.35.1         3-Clause BSD License
+  pt_core_news_sm              3.8.0          CC BY-SA 4.0
+  pyarrow                      19.0.1         Apache Software License
+  pydantic                     2.13.4         MIT
+  pydantic-settings            2.14.2         MIT
+  pydantic_core                2.46.4         MIT
+  pydeck                       0.9.3          Apache License 2.0
+  Pygments                     2.20.0         BSD-2-Clause
+  PyMuPDF                      1.25.5         Dual Licensed - GNU AFFERO GPL 3.0 or Ar
+  python-dateutil              2.9.0.post0    Dual License
+  python-dotenv                1.2.2          BSD-3-Clause
+  python-multipart             0.0.32         Apache-2.0
+  pytz                         2026.3.post1   MIT
+  PyYAML                       6.0.3          MIT
+  referencing                  0.37.0         MIT
+  regex                        2026.7.19      Apache-2.0 AND CNRI-Python
+  requests                     2.34.2         Apache-2.0
+  requests-file                3.0.1          Apache 2.0
+  rich                         15.0.0         MIT
+  rpds-py                      2026.6.3       MIT
+  safetensors                  0.8.0          Apache Software License
+  shellingham                  1.5.4          ISC License
+  six                          1.17.0         MIT
+  smart_open                   8.0.1          MIT License
+  smmap                        5.0.3          BSD-3-Clause
+  spacy                        3.8.14         MIT
+  spacy-legacy                 3.0.12         MIT
+  spacy-loggers                1.0.5          MIT
+  srsly                        2.5.3          MIT
+  starlette                    1.3.1          BSD-3-Clause
+  streamlit                    1.59.2         Apache-2.0
+  sympy                        1.14.0         BSD
+  tenacity                     9.1.4          Apache 2.0
+  thinc                        8.3.13         MIT
+  tldextract                   5.3.1          BSD-3-Clause
+  tokenizers                   0.22.2         Apache Software License
+  toml                         0.10.2         MIT
+  torch                        2.13.0+cpu     Apache-2.0 AND Apache-2.0 WITH LLVM-exce
+  tqdm                         4.70.0         MPL-2.0 AND MIT
+  transformers                 5.13.0         Apache 2.0 License
+  typer                        0.27.0         MIT
+  typing-inspection            0.4.2          MIT
+  typing_extensions            4.16.0         PSF-2.0
+  tzdata                       2026.3         Apache-2.0
+  urllib3                      2.7.0          MIT
+  uvicorn                      0.51.0         BSD-3-Clause
+  wasabi                       1.1.3          MIT
+  watchdog                     6.0.0          Apache-2.0
+  weasel                       1.0.0          MIT
+  websockets                   16.1.1         BSD-3-Clause
+  wrapt                        2.2.2          BSD-2-Clause
+
+
+ONDE ESTÃO OS TEXTOS DAS LICENÇAS
+----------------------------------------------------------------------
+  licenses/Apache-2.0.txt     — Tesseract, pdf.js e as bibliotecas
+                                Python sob Apache 2.0
+  licenses/CC-BY-SA-4.0.txt   — modelo pt_core_news_sm do spaCy
+  LICENSE                     — AGPL-3.0, do Tarjador e do PyMuPDF
+  _internal/*.dist-info/      — licenças de cada biblioteca Python
+
+A cláusula 4(a) da Apache 2.0 exige entregar uma CÓPIA da licença a
+quem recebe o software, não apenas citá-la — por isso os textos
+integrais acompanham a instalação.
+

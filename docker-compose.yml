@@ -1,0 +1,12 @@
+# Teste local do mesmo container que roda no HF Space.
+#   docker compose up --build
+#   abra http://localhost:8501
+services:
+  tarjador:
+    build: .
+    container_name: tarjador
+    ports:
+      - "8501:8501"
+    environment:
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-200}
+    restart: unless-stopped

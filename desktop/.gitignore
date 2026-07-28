@@ -1,0 +1,14 @@
+# Nada do build do desktop entra no repositório: são centenas de MB e são
+# reproduzíveis a partir de requirements-lite.txt + tarjador.spec.
+.venv/
+.venv-full/
+build/
+dist/
+# vendor/* (não vendor/) para permitir a exceção abaixo: o git não reinclui
+# arquivo cujo diretório-pai foi excluído.
+vendor/*
+# Os textos das licenças SÃO fonte, não binário baixado: sem eles o build sai
+# fora de conformidade com a Apache-2.0 (ver build.ps1). São 31 KB.
+!vendor/licenses/
+*.zip
+Output/

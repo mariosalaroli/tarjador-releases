@@ -1,0 +1,17 @@
+# Desliga o file-watcher do Streamlit. Em produção (Streamlit Cloud) o
+# redeploy é feito por git, não pelo watcher. Sem isso, o watcher varre os
+# submódulos do transformers e tenta importar os de visão (torchvision, que
+# não instalamos), poluindo o log com ModuleNotFoundError inofensivos.
+[server]
+fileWatcherType = "none"
+
+# Cor de destaque (teal / azul-água) nas pílulas, tags do multiselect e botões
+# primários. Definimos theme.light E theme.dark (em vez de um [theme] top-level,
+# que travaria no claro): assim o app segue a preferência de sistema de cada
+# usuário (claro/escuro) e aplica o acento nos dois. Tons ajustados para
+# contraste em cada fundo.
+[theme.light]
+primaryColor = "#14b8a6"
+
+[theme.dark]
+primaryColor = "#2dd4bf"

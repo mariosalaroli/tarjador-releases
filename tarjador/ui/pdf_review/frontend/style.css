@@ -1,0 +1,165 @@
+/* Visualizador de revisão do Tarjador — tudo roda DENTRO do iframe do
+   componente: scroll, zoom e toggles não fazem viagem ao servidor. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #808088;            /* fundo atrás das páginas (cinza de leitor de PDF) */
+  --toolbar-bg: #f0f2f6;
+  --text: #262730;
+  --accent: #14b8a6;        /* teal do tema do app */
+  --off: #e87052;           /* salmão do contorno "não tarjar" (0.91,0.44,0.32) */
+}
+
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: "Source Sans Pro", -apple-system, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+}
+
+#root { display: flex; flex-direction: column; height: 100vh; }
+
+/* ---------------------------------------------------------------- toolbar */
+#toolbar {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 6px 8px; background: var(--toolbar-bg);
+  border-bottom: 1px solid rgba(127,127,127,.25);
+  flex: 0 0 auto; user-select: none; flex-wrap: wrap;
+}
+#toolbar button {
+  border: 1px solid rgba(127,127,127,.35); background: transparent;
+  color: var(--text); border-radius: 6px; padding: 3px 9px; font-size: 13px;
+  cursor: pointer; line-height: 1.4; white-space: nowrap;
+}
+#toolbar button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+#toolbar button:disabled { opacity: .4; cursor: default; }
+#toolbar button.active {
+  border-color: var(--accent); background: var(--accent); color: #fff;
+}
+#toolbar .sep { width: 1px; align-self: stretch; background: rgba(127,127,127,.25); margin: 0 4px; }
+#pageinput {
+  width: 52px; text-align: right; border: 1px solid rgba(127,127,127,.35);
+  border-radius: 6px; padding: 3px 6px; font-size: 13px;
+  background: transparent; color: var(--text);
+}
+#pageinput:focus { outline: none; border-color: var(--accent); }
+#pagetotal, #zoomlabel { opacity: .75; font-variant-numeric: tabular-nums; }
+#zoomlabel { min-width: 44px; text-align: center; }
+
+/* --------------------------------------------------------------- scroller */
+#scroller {
+  /* position:relative: offsetTop/offsetLeft dos wrappers ficam no referencial
+     do conteúdo do scroller — a âncora do zoom e o scroll da navegação
+     dependem disso. */
+  position: relative;
+  flex: 1 1 auto; overflow: auto; background: var(--bg);
+  padding: 10px 0; scrollbar-width: thin;
+}
+
+/* cursores por modo: no modo texto, área em branco é "mão" (grab) e os
+   spans da camada de texto mantêm o cursor de texto (mais específico). */
+.mode-texto #scroller { cursor: grab; }
+body.panning { user-select: none; }
+body.panning #scroller, body.panning #scroller * { cursor: grabbing !important; }
+.mode-rolo #scroller { cursor: crosshair; }
+.mode-rolo .box { cursor: crosshair; }
+
+.page-wrap {
+  position: relative; margin: 0 auto 12px auto;
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.45);
+}
+.page-wrap canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+}
+.page-num {
+  /* rótulo discreto no placeholder de página ainda não renderizada */
+  position: absolute; inset: 0; display: flex; align-items: center;
+  justify-content: center; color: rgba(0,0,0,.25); font-size: 22px;
+}
+
+/* -------------------------------------------------------- camada de texto */
+/* Estilo mínimo do TextLayer do pdf.js: spans transparentes e posicionados;
+   só recebem eventos (seleção) no modo "texto". */
+.textLayer {
+  position: absolute; inset: 0; overflow: hidden; z-index: 2;
+  line-height: 1; text-size-adjust: none; forced-color-adjust: none;
+  transform-origin: 0 0; pointer-events: none; user-select: none;
+}
+.textLayer :is(span, br) {
+  color: transparent; position: absolute; white-space: pre;
+  cursor: text; transform-origin: 0% 0%;
+}
+.textLayer ::selection { background: rgba(20, 184, 166, .35); }
+.mode-texto .textLayer { pointer-events: auto; user-select: text; cursor: grab; }
+
+/* ---------------------------------------------------------------- overlays */
+/* A camada em si é vazada (pointer-events none) para a seleção de texto
+   funcionar por baixo; só as caixas capturam o mouse. */
+.overlay { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.box {
+  position: absolute; cursor: pointer; border-radius: 1px;
+  transition: background-color .1s ease;
+  pointer-events: auto;
+}
+/* marcada: prévia preta translúcida (réplica do fill 0.85 da versão antiga) */
+.box.on { background: rgba(0,0,0,.85); border: 1.5px solid #000; }
+/* selo marcado: preto opaco — precisa COBRIR a imagem do selo por baixo */
+.box.on.seal { background: #000; }
+/* não marcada: contorno salmão tracejado */
+.box.off { background: rgba(232,112,82,.06); border: 2.5px dashed var(--off); }
+.box.off:hover { background: rgba(232,112,82,.18); }
+.box.on:hover { background: rgba(0,0,0,.7); }
+/* CPF descaracterizado (marcado): a prévia é o número mascarado
+   (***.456.789-**) sobre fundo claro — no PDF final vai texto no lugar do
+   original, não tarja preta. Especificidade maior que .box.on, então estas
+   regras vencem as de tarja acima. */
+.box.mask.on {
+  background: #fff; border: 1.5px solid #8a8a8a;
+  display: flex; align-items: center; justify-content: center;
+  color: #000; font-family: Helvetica, Arial, sans-serif;
+  white-space: nowrap; overflow: hidden; line-height: 1;
+}
+.box.mask.on:hover { background: #f1f1f1; }
+/* desmarcado: o CPF original do documento fica visível — o texto mascarado
+   some para não se sobrepor a ele (sobra o contorno tracejado padrão). */
+.box.mask:not(.on) { color: transparent; }
+/* entidade navegada: anel teal por fora */
+.box.nav { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* No modo rolo, as caixas de detecção não capturam o mouse (a pintura passa
+   por cima delas); as tarjas manuais continuam clicáveis para remoção. */
+.mode-rolo .box { pointer-events: none; }
+.mode-rolo .box.manual { pointer-events: auto; }
+.box.manual.preview { pointer-events: none; opacity: .8; }
+.box.manual:not(.preview):hover {
+  background: rgba(0, 0, 0, .55);
+  outline: 2px solid #ef4444; outline-offset: 1px;
+}
+@keyframes tj-pulse {
+  0% { outline-color: var(--accent); outline-width: 3px; }
+  50% { outline-color: #5eead4; outline-width: 6px; }
+  100% { outline-color: var(--accent); outline-width: 3px; }
+}
+.box.pulse { animation: tj-pulse .55s ease 2; }
+
+/* ------------------------------------------------------------- mensagens */
+#status {
+  position: absolute; inset: 0; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 10px;
+  background: var(--bg); z-index: 50; color: #fff; font-size: 15px;
+}
+#status.hidden { display: none; }
+.spinner {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.3); border-top-color: #fff;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ------------------------------------------------------------ tema escuro */
+body.dark {
+  --bg: #17171b;
+  --toolbar-bg: #262730;
+  --text: #fafafa;
+}
+body.dark .page-wrap { box-shadow: 0 1px 5px rgba(0,0,0,.8); }
