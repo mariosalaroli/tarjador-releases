@@ -1,0 +1,10 @@
+# O repositório é desenvolvido no Windows com core.autocrlf=true, então tudo
+# que é "texto" sai do checkout com CRLF. Para estes arquivos isso quebra: eles
+# rodam dentro do container Linux, e o kernel responde a um shebang terminado em
+# \r com "bad interpreter: /bin/bash^M" — mensagem que não diz nada sobre a
+# causa. Fixar em LF resolve na origem.
+#
+# O `sed` do Dockerfile continua lá como rede de segurança: cobre checkouts
+# feitos antes deste arquivo existir e configurações de git menos comuns.
+*.sh        text eol=lf
+AppRun      text eol=lf

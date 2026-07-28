@@ -1,9 +1,14 @@
-# Tarjador Desktop (Windows)
+# Tarjador Desktop
 
-Empacotamento do Tarjador como aplicativo Windows. A UI é a **mesma** de
+Empacotamento do Tarjador como aplicativo instalável. A UI é a **mesma** de
 `app.py`: o que muda é o invólucro — em vez de `streamlit run` num servidor
 hospedado, um executável sobe o Streamlit em `127.0.0.1` e abre o navegador
 padrão do usuário.
+
+Este arquivo descreve o empacotamento **Windows** (`.exe` + instalador Inno
+Setup), que é o mais antigo e o mais detalhado. O AppImage de **Linux** reusa o
+mesmo `run_tarjador.py` e o mesmo `tarjador.spec`, e tem o pipeline próprio
+documentado em [`linux/README.md`](linux/README.md).
 
 Nada aqui altera os deploys hospedados (HF Space e Streamlit Cloud). A única
 mudança em `app.py` é condicionada à variável `TARJADOR_EDITION`, que só o

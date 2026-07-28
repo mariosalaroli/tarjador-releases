@@ -9,14 +9,47 @@ faulthandler.enable()
 import os
 import re
 
-import fitz  # PyMuPDF
 import streamlit as st
 
-from tarjador.ui.pdf_review import pdf_review, pdf_media_url
-from tarjador.core.detector import DEFAULT_ENTITIES
-from tarjador.core.pipeline import analyze, analyze_seals, apply_redactions
-from tarjador.core.redactor import (IMAGE_ENTITY_TIPO, SEAL_ENTITY_TIPO,
-                                    cpf_descaracterizado)
+# ---------------------------------------------------------------------------
+# Arranque: desenhar ALGO antes dos imports pesados
+# ---------------------------------------------------------------------------
+# Os imports logo abaixo (spaCy, Presidio, PyMuPDF) levam segundos com o cache
+# do sistema frio, e até aqui o Streamlit não emitiu nada — o usuário fica com
+# uma janela de navegador ABERTA e VAZIA, que é o que faz parecer travado.
+# Medido no desktop, primeira abertura depois do boot: 4 s até o navegador
+# abrir e mais 6 s de tela em branco. São esses 6 s que este bloco cobre.
+#
+# Não é só do desktop: na web o app hiberna por inatividade, e cada visitante
+# que chega depois de uma soneca paga o mesmo arranque.
+#
+# `set_page_config` subiu para cá (era a linha 519) porque tem de ser o
+# PRIMEIRO comando do Streamlit, e agora há comandos antes do fim do módulo.
+# De quebra ele passa a vir antes da leitura de `st.secrets` mais abaixo.
+st.set_page_config(page_title="Tarjador.ia", page_icon="🔒", layout="wide")
+
+_boot = st.empty()
+_arranque = "_tarjador_pronto" not in st.session_state
+with _boot.container():
+    if _arranque:
+        st.title("🔒 Tarjador.ia")
+        st.caption("Preparando os modelos de linguagem. "
+                   "Isso acontece só na primeira abertura.")
+    with st.spinner("Carregando…"):
+        # ATENÇÃO: estes imports são de MÓDULO (o `with` não cria escopo) e
+        # PRECISAM ficar aqui embaixo — é o atraso deles que o bloco acima
+        # existe para cobrir. Subi-los de volta para o topo "arrumando o E402"
+        # devolve a tela branca. As constantes adiante dependem deles.
+        import fitz  # PyMuPDF  # noqa: E402
+        from tarjador.ui.pdf_review import pdf_review, pdf_media_url  # noqa: E402
+        from tarjador.core.detector import DEFAULT_ENTITIES  # noqa: E402
+        from tarjador.core.pipeline import (analyze, analyze_seals,  # noqa: E402
+                                            apply_redactions)
+        from tarjador.core.redactor import (IMAGE_ENTITY_TIPO,  # noqa: E402
+                                            SEAL_ENTITY_TIPO,
+                                            cpf_descaracterizado)
+_boot.empty()
+st.session_state["_tarjador_pronto"] = True
 
 # Tipos cuja localização vem de um RETÂNGULO (não de busca por texto): selo de
 # assinatura e imagem com cara de assinatura/carimbo. Ambos são desenhados no
@@ -516,7 +549,8 @@ def _tabela_unificada(alvo, gid_box_pages):
                           unsafe_allow_html=True)
 
 
-st.set_page_config(page_title="Tarjador.ia", page_icon="🔒", layout="wide")
+# `set_page_config` subiu para o topo do arquivo (bloco de arranque): tem de
+# ser o primeiro comando do Streamlit, e agora há comandos antes daqui.
 
 st.title("🔒 Tarjador.ia")
 st.markdown(
@@ -882,29 +916,59 @@ with st.sidebar:
         # release de repo privado dá 404 para qualquer visitante — descoberto
         # com os botões já no ar. Assets e histórico do fonte ficam separados.
         _REL = "https://github.com/mariosalaroli/tarjador-releases/releases"
+        # Uma aba por sistema. Alternativa considerada: lista única com os
+        # quatro botões visíveis, que evita o clique extra — descartada por
+        # deixar a sidebar longa demais numa coluna estreita. Com abas, quem
+        # usa Windows vê exatamente o que via antes, e o Linux não custa altura
+        # nenhuma a quem não usa.
+        _AJUDA_LEVE = ("Detecção completa (CPF, nomes, e-mails, selos com OCR), "
+                       "sem o modelo de IA — os nomes vêm das heurísticas e do "
+                       "spaCy.")
+        _AJUDA_COMPLETA = ("Tudo da Leve + a IA de nomes (**BERTimbau** jurídico, "
+                           "o mesmo deste site), funcionando offline.")
         with st.expander("🖥️ Instalar no computador"):
             st.caption(
                 "O documento **nunca sai da sua máquina** — processa tudo "
                 "localmente e funciona sem internet."
             )
-            st.link_button(
-                "⬇️ Edição Leve — 143 MB",
-                f"{_REL}/latest/download/TarjadorSetup-Leve.exe",
-                help="Detecção completa (CPF, nomes, e-mails, selos com OCR), "
-                     "sem o modelo de IA — os nomes vêm das heurísticas e do "
-                     "spaCy. Ocupa ~580 MB instalado.",
-                use_container_width=True,
-            )
-            st.link_button(
-                "⬇️ Edição Completa — 650 MB",
-                f"{_REL}/latest/download/TarjadorSetup-Completa.exe",
-                help="Tudo da Leve + a IA de nomes (**BERTimbau** jurídico, "
-                     "o mesmo deste site), funcionando offline. Ocupa "
-                     "~1,6 GB instalado. Instalar por cima da Leve atualiza.",
-                use_container_width=True,
-            )
-            st.caption(f"Windows 10/11, 64 bits. [Todas as versões e "
-                       f"verificação SHA-256]({_REL}).")
+            _win, _linux = st.tabs(["🪟 Windows", "🐧 Linux"])
+            with _win:
+                st.link_button(
+                    "⬇️ Edição Leve — 143 MB",
+                    f"{_REL}/latest/download/TarjadorSetup-Leve.exe",
+                    help=_AJUDA_LEVE + " Ocupa ~580 MB instalado.",
+                    use_container_width=True,
+                )
+                st.link_button(
+                    "⬇️ Edição Completa — 650 MB",
+                    f"{_REL}/latest/download/TarjadorSetup-Completa.exe",
+                    help=_AJUDA_COMPLETA + " Ocupa ~1,6 GB instalado. "
+                         "Instalar por cima da Leve atualiza.",
+                    use_container_width=True,
+                )
+                st.caption("Windows 10/11, 64 bits.")
+            with _linux:
+                st.link_button(
+                    "⬇️ Edição Leve — 202 MB",
+                    f"{_REL}/latest/download/Tarjador-Leve-x86_64.AppImage",
+                    help=_AJUDA_LEVE,
+                    use_container_width=True,
+                )
+                st.link_button(
+                    "⬇️ Edição Completa — 804 MB",
+                    f"{_REL}/latest/download/Tarjador-Completa-x86_64.AppImage",
+                    help=_AJUDA_COMPLETA,
+                    use_container_width=True,
+                )
+                # A instrução do chmod não é detalhe: sem ela o usuário baixa,
+                # dá dois cliques, não acontece nada e conclui que o arquivo
+                # está quebrado. É o pedágio conhecido do formato AppImage.
+                st.caption(
+                    "Arquivo único, 64 bits. Baixe, clique com o botão direito "
+                    "→ Propriedades → Permissões → **permitir execução como "
+                    "programa**, e abra."
+                )
+            st.caption(f"[Todas as versões e verificação SHA-256]({_REL}).")
     else:
         # Rodando no Tarjador Desktop: mostrar edição e versão. Sem isto, um
         # chamado de suporte começa com "qual versão você tem?" e o usuário

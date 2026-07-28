@@ -23,6 +23,7 @@ cada execução — comportamento que antivírus e WDAC costumam barrar, e é
 exatamente o atrito que se quer evitar em máquina corporativa.
 """
 import os
+import sys
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_all, copy_metadata
@@ -31,9 +32,20 @@ SPEC_DIR = Path(SPECPATH)          # noqa: F821 — injetado pelo PyInstaller
 REPO = SPEC_DIR.parent
 VENDOR = SPEC_DIR / "vendor"
 
+# Este mesmo spec produz o bundle das duas plataformas. O que difere é só o
+# invólucro do executável — recurso de versão, ícone e modo janela são
+# conceitos do Windows. O CONTEÚDO (collect_all, datas, excludes) é idêntico
+# de propósito: duas listas de imports para manter sincronizadas seria a
+# receita para a edição Linux quebrar num import que ninguém lembrou de
+# adicionar. Ver desktop/linux/ para o resto do pipeline do AppImage.
+WINDOWS = sys.platform == "win32"
+
 # Console visível ajuda a diagnosticar build novo; o entregável vai sem.
 #   $env:TARJADOR_CONSOLE=1  antes do build  -> janela de console
-CONSOLE = os.environ.get("TARJADOR_CONSOLE") == "1"
+# No Linux o parâmetro não existe (não há subsistema "windowed"): o binário
+# sempre pode escrever em stdout, e o lançador redireciona para o log de
+# qualquer forma.
+CONSOLE = os.environ.get("TARJADOR_CONSOLE") == "1" or not WINDOWS
 
 # Edição: "lite" (padrão) ou "full". Definida por $env:TARJADOR_BUILD_EDITION
 # (o build.ps1 -Edition full seta). O que muda: a pilha de IA entra nos
@@ -52,12 +64,18 @@ VERSAO = (SPEC_DIR / "VERSION").read_text(encoding="utf-8").strip()
 print(f"[spec] edição: {EDITION}, versão: {VERSAO}")
 
 
-def _gera_version_info() -> str:
+def _gera_version_info() -> str | None:
     """Escreve o recurso de versão do .exe e devolve o caminho.
 
     Vai para o workpath (desktop/build), que é descartável e ignorado pelo
     git: é artefato de build, não fonte.
+
+    Só no Windows: `VSVersionInfo` é um recurso PE. No Linux quem carrega essa
+    informação é o `.desktop` do AppDir (ver desktop/linux/tarjador.desktop) e
+    o próprio nome do arquivo do AppImage.
     """
+    if not WINDOWS:
+        return None
     nums = [int(p) for p in VERSAO.split(".")]
     while len(nums) < 4:
         nums.append(0)
@@ -300,7 +318,11 @@ exe = EXE(                          # noqa: F821
     # Segoe UI Emoji em desktop/assets/; sem ele o exe sai com o ícone
     # genérico do PyInstaller, que grita "script empacotado" para qualquer AV
     # heurístico e para o usuário.
-    icon=str(SPEC_DIR / "assets" / "tarjador.ico"),
+    #
+    # O ELF do Linux não tem onde embutir ícone: lá quem faz esse papel é o
+    # PNG na raiz do AppDir, extraído do MESMO .ico por desktop/linux/ico2png.py
+    # (as sete entradas dele já são PNG), para os dois não divergirem.
+    icon=str(SPEC_DIR / "assets" / "tarjador.ico") if WINDOWS else None,
     version=_gera_version_info(),
 )
 coll = COLLECT(                     # noqa: F821

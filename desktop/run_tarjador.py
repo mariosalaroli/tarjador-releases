@@ -42,6 +42,13 @@ APP_NAME = "Tarjador"
 PORT_RANGE = range(8501, 8600)
 HEALTH_PATH = "/_stcore/health"
 
+# O mesmo lançador serve o .exe do Windows e o AppImage do Linux. As diferenças
+# são três e todas locais: onde o app pode escrever, como o binário do Tesseract
+# se chama e o `webbrowser`, que já resolve sozinho (xdg-open lá, ShellExecute
+# aqui). Nada de segundo arquivo de lançador — divergir os dois significaria
+# descobrir no usuário que uma correção só foi aplicada de um lado.
+WINDOWS = sys.platform == "win32"
+
 
 def _base_dir() -> Path:
     """Raiz dos recursos: o diretório do bundle quando congelado, senão o
@@ -57,8 +64,20 @@ def _data_dir() -> Path:
 
     Nunca ao lado do executável — a instalação vive em Program Files, que é
     somente-leitura para o usuário (e é justamente por isso que ela satisfaz
-    a política padrão do AppLocker)."""
-    root = Path(os.environ.get("LOCALAPPDATA", Path.home())) / APP_NAME
+    a política padrão do AppLocker). No Linux vale o mesmo por outro motivo:
+    o AppImage é um squashfs montado SOMENTE-LEITURA, então escrever ao lado
+    do binário não falha por política, falha por física.
+
+    Cada plataforma na convenção dela: `%LOCALAPPDATA%\\Tarjador` no Windows,
+    `$XDG_DATA_HOME/Tarjador` (ou `~/.local/share/Tarjador`) no resto. Usar
+    LOCALAPPDATA com fallback para `~` daria `~/Tarjador` no Linux — uma pasta
+    visível na home do usuário, que ninguém espera de um aplicativo.
+    """
+    if WINDOWS:
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home()))
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share")
+    root = base / APP_NAME
     root.mkdir(parents=True, exist_ok=True)
     return root
 
@@ -107,11 +126,27 @@ def _porta_livre() -> int:
     )
 
 
+def _marca_porta() -> Path:
+    """Arquivo que guarda a porta da instância viva — UM POR EDIÇÃO.
+
+    Era um `porta.txt` só, e isso fazia as edições se atropelarem: com a Leve
+    aberta, abrir a Completa achava aquela porta viva, concluía "já tem
+    instância" e abria uma aba apontando para o servidor da LEVE. O usuário
+    via o toggle de IA esmaecido num aplicativo que deveria tê-lo — sem
+    nenhuma pista do que houve.
+
+    Não é hipótese de laboratório: o AppImage e o ZIP portátil são duas
+    edições que convivem na mesma pasta, sem instalador que substitua uma pela
+    outra. Separando o marcador por edição, cada uma acompanha a própria
+    instância e as duas podem rodar ao mesmo tempo, em portas diferentes.
+    """
+    return _data_dir() / f"porta-{_edicao()}.txt"
+
+
 def _instancia_existente() -> int | None:
-    """Porta de um Tarjador já rodando, se houver."""
-    marca = _data_dir() / "porta.txt"
+    """Porta de um Tarjador DESTA MESMA EDIÇÃO já rodando, se houver."""
     try:
-        port = int(marca.read_text(encoding="utf-8").strip())
+        port = int(_marca_porta().read_text(encoding="utf-8").strip())
     except (OSError, ValueError):
         return None
     return port if _porta_viva(port) else None
@@ -125,12 +160,18 @@ def _dir_tesseract() -> Path | None:
     varre as dependências dessas DLLs e as deposita na raiz, onde o
     `libcrypto-3-x64.dll` do build MinGW do Tesseract sobrescreve o do Python
     e derruba o `import ssl` na abertura. Ver a nota longa em `tarjador.spec`.
+
+    A mesma pasta irmã vale no AppImage — e lá o motivo de mantê-la separada é
+    outro: as libs do Tesseract (leptonica, libtiff, libwebp...) resolvem por
+    RPATH `$ORIGIN`, gravado pelo build. Jogá-las na raiz do bundle as faria
+    disputar nome com as que o Python carrega.
     """
+    exe = "tesseract.exe" if WINDOWS else "tesseract"
     if getattr(sys, "frozen", False):
         cand = Path(sys.executable).parent / "tesseract"
     else:
         cand = Path(__file__).resolve().parent / "vendor" / "tesseract"
-    return cand if (cand / "tesseract.exe").is_file() else None
+    return cand if (cand / exe).is_file() else None
 
 
 def _ativa_tesseract() -> None:
@@ -172,6 +213,16 @@ def _dir_modelos() -> Path | None:
     if cand.is_dir() and any(cand.glob("models--*")):
         return cand
     return None
+
+
+def _edicao() -> str:
+    """"full" ou "lite", decidido pelo PAYLOAD — não por carimbo de build.
+
+    É a presença da pasta `models` que define a edição. Um único lançador
+    serve as duas justamente por isso: o que está ao lado do executável diz o
+    que ele é.
+    """
+    return "full" if _dir_modelos() is not None else "lite"
 
 
 def _configura_ambiente() -> None:
@@ -242,7 +293,13 @@ def _opcoes_streamlit(port: int) -> dict:
         "server.fileWatcherType": "none",
         "browser.gatherUsageStats": False,
         "server.enableStaticServing": False,
-        "client.toolbarMode": "minimal",
+        # "viewer" e não "minimal": é o menu ☰ que carrega o
+        # Settings -> Theme, único jeito de o usuário forçar claro/escuro. Sem
+        # ele o app fica preso à preferência do sistema — o `config.toml` define
+        # os dois temas, mas quem escolhe é o SO, e não há como discordar.
+        # Vêm juntos Rerun, Print e About, que não significam nada para o
+        # usuário final; é o preço, e foi aceito conscientemente.
+        "client.toolbarMode": "viewer",
         "server.maxUploadSize": 500,
         # Sem isto a página dá 404: o default é calculado como
         # `"site-packages" not in __file__`, e num bundle o caminho é
@@ -252,6 +309,36 @@ def _opcoes_streamlit(port: int) -> dict:
         # página 404.
         "global.developmentMode": False,
     }
+
+
+def _preaquece_analise() -> None:
+    """Importa a pilha de análise em segundo plano, antes de o usuário conectar.
+
+    O script do Streamlit roda NESTE mesmo processo, então tudo que entrar em
+    `sys.modules` aqui já está pronto quando o `app.py` executa pela primeira
+    vez. Com o cache do sistema frio — o caso logo depois de instalar — isso
+    paga parte da espera enquanto o navegador ainda está abrindo, em vez de
+    depois, com a janela aberta e vazia na frente do usuário.
+
+    Medido na primeira abertura após reiniciar a máquina: ~4 s até o navegador
+    abrir e ~6 s de tela branca depois disso. É esse segundo trecho que este
+    pré-aquecimento encurta (o placeholder no topo do `app.py` cobre o que
+    sobrar).
+
+    Falha em silêncio de propósito: se algo quebrar aqui, o `app.py` importa de
+    novo pelo caminho normal e o erro aparece lá, com contexto de verdade. Um
+    pré-aquecimento capaz de derrubar a abertura seria pior que não ter nenhum.
+    """
+    t0 = time.monotonic()
+    try:
+        import fitz  # noqa: F401  — PyMuPDF
+        from tarjador.core import detector  # noqa: F401
+        from tarjador.core import pipeline  # noqa: F401
+    except BaseException as e:  # noqa: BLE001 — nada aqui pode matar a abertura
+        print(f"[launcher] pré-aquecimento falhou, seguindo normal: {e}")
+    else:
+        print(f"[launcher] pilha de análise pré-carregada em "
+              f"{time.monotonic() - t0:.1f}s")
 
 
 def _abre_navegador(url: str, port: int) -> None:
@@ -345,7 +432,7 @@ def main() -> int:
 
     port = _porta_livre()
     _configura_ambiente()
-    (_data_dir() / "porta.txt").write_text(str(port), encoding="utf-8")
+    _marca_porta().write_text(str(port), encoding="utf-8")
 
     url = f"http://127.0.0.1:{port}"
     print(f"[launcher] base={base}")
@@ -366,6 +453,13 @@ def main() -> int:
     from streamlit.web import bootstrap
 
     _ativa_tesseract()
+
+    # Pré-aquecimento DEPOIS do `_ativa_tesseract`, não antes: aquela função
+    # mexe no PATH, e no Windows o carregador de DLL lê o PATH na hora de
+    # resolver cada biblioteca. Uma thread importando fitz/spaCy exatamente
+    # durante a alteração poderia pegar o `libcrypto` do Tesseract — a mesma
+    # colisão descrita em `_dir_tesseract`, só que intermitente, que é pior.
+    threading.Thread(target=_preaquece_analise, daemon=True).start()
 
     # O MESMO dict vai para `load_config_options` e para `run` — é o que o
     # CLI oficial faz (`streamlit run` passa flag_options aos dois): o

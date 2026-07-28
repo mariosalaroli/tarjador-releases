@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Tarjador
+GenericName=Remoção de dados pessoais em PDF
+Comment=Remove dados pessoais de documentos PDF, sem enviar nada para a internet
+Exec=Tarjador
+Icon=tarjador
+# Uma única categoria PRINCIPAL. Com "Office;Utility;" o desktop-file-validate
+# avisa que o app pode aparecer DUAS vezes no menu de aplicativos — as duas são
+# categorias principais do freedesktop, e cada uma vira uma entrada.
+Categories=Office;
+Keywords=pdf;lgpd;tarja;anonimizar;privacidade;
+Terminal=false
+StartupNotify=true
+X-AppImage-Name=Tarjador

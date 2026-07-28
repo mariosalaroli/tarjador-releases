@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Metadados AppStream do AppImage.
+
+  Sem este arquivo o appimagetool avisa "AppStream upstream metadata is
+  missing" a cada build. Não é só silenciar o aviso: é daqui que gerenciadores
+  de software e menus tiram nome, descrição e licença quando o usuário integra
+  o AppImage ao sistema — e é o mesmo formato que um .deb ou um Flatpak
+  pediriam depois, então o arquivo já nasce reaproveitável.
+
+  Sem bloco <releases> de propósito: ele obrigaria a editar este XML a cada
+  subida de versão, e a fonte única da versão é desktop/VERSION.
+-->
+<component type="desktop-application">
+  <id>br.ia.tarjador</id>
+  <name>Tarjador</name>
+  <summary>Remoção de dados pessoais em PDF</summary>
+  <summary xml:lang="pt-BR">Remoção de dados pessoais em PDF</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-or-later</project_license>
+
+  <description>
+    <p>
+      O Tarjador remove dados pessoais — CPF, RG, telefone, e-mail, nomes — de
+      documentos PDF. O documento é processado inteiramente na máquina do
+      usuário: nada é enviado para a internet, e o aplicativo funciona com o
+      firewall de saída fechado.
+    </p>
+    <p>
+      A interface abre no navegador padrão, servida em 127.0.0.1. Cada
+      ocorrência encontrada pode ser revisada antes de gerar o PDF final.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">tarjador.desktop</launchable>
+  <provides>
+    <id>tarjador.desktop</id>
+  </provides>
+
+  <url type="homepage">https://tarjador.ia.br</url>
+
+  <categories>
+    <category>Office</category>
+  </categories>
+
+  <content_rating type="oars-1.1"/>
+</component>

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Ponto de entrada do AppImage. O AppImage monta o squashfs e executa ESTE
+# arquivo; tudo que ele faz é achar o binário do PyInstaller dentro do AppDir
+# e passar a bola.
+#
+# `$APPDIR` só existe quando o runtime do AppImage nos chamou. Rodando o AppDir
+# extraído à mão (`./Tarjador.AppImage --appimage-extract` e depois
+# `squashfs-root/AppRun`, que é como se depura sem FUSE), a variável vem vazia
+# — daí o readlink.
+#
+# Nada de `export LD_LIBRARY_PATH` aqui, de propósito. O bundle do PyInstaller
+# já carrega as libs dele por RPATH, e o Tesseract embarcado idem ($ORIGIN,
+# gravado no build). Exportar a variável faria o app impor as SUAS libs a todo
+# processo filho — inclusive ao navegador aberto pelo xdg-open, que aí tentaria
+# subir com a glibc/libstdc++ de 2018 do container de build. É o modo clássico
+# de um AppImage "não abrir o navegador" na máquina do usuário.
+set -e
+HERE="$(dirname "$(readlink -f "$0")")"
+exec "${HERE}/usr/lib/tarjador/Tarjador" "$@"
