@@ -59,7 +59,8 @@ tarjador/core/
 ├── _ner_bert.py          # NER com BERTimbau (LeNER-Br)
 ├── redactor.py           # PyMuPDF: tarja real + limpeza de metadados
 └── pipeline.py            # orquestra analyze() / apply_redactions()
-tarjador/api/           # API HTTP (FastAPI) equivalente, com autenticação por chave
+tarjador/api/           # API HTTP (FastAPI) equivalente, com autenticação por chave —
+                        # não deployada (código pronto, roda à parte via uvicorn)
 desktop/                # empacotamento Windows (PyInstaller + Inno Setup) — ver desktop/README.md
 ```
 
