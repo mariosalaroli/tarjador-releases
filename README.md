@@ -1,8 +1,8 @@
 # Tarjador — código-fonte e downloads
 
 App para remoção de dados pessoais (CPF, nomes, e-mails, selos de assinatura) de
-PDFs, em conformidade com a LGPD e a LAI. Projeto sem fins lucrativos, feito
-para a administração pública brasileira.
+PDFs, em conformidade com a LGPD e a LAI. Projeto sem fins lucrativos, pensado
+para a administração pública brasileira — mas aberto a todos.
 
 Use direto no navegador em [tarjador.ia.br](https://tarjador.ia.br), ou instale
 a versão desktop (documento nunca sai da sua máquina) — veja abaixo.
