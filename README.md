@@ -33,6 +33,7 @@ Detalhes de build do desktop (as duas edições, empacotamento, etc.) estão em
 ## O que é detectado
 
 - **CPF / CNPJ** — regex com validação dos dígitos verificadores
+- **RG** — regex + palavra de contexto obrigatória (RG, identidade, SSP/órgão expedidor) na vizinhança, já que não existe padrão nacional de formato; opcional (desmarcado por padrão, como CNPJ e Telefone)
 - **Celular / Telefone** — reconhece o número em qualquer máscara e valida de verdade com `phonenumbers` (libphonenumber): confere se o DDD existe e se o formato bate com o plano de numeração brasileiro
 - **E-mail** — a tarja cobre por padrão só a parte antes do `@` (domínio não é dado pessoal); endereços institucionais/funcionais vêm listados mas desmarcados por padrão
 - **Nomes** — por padrão via IA (BERTimbau/BERT afinado em textos jurídicos, LeNER-Br), com heurísticas de texto (proximidade a CPF, blocos de assinatura) como alternativa ou complemento configurável
@@ -75,7 +76,7 @@ Requer Tesseract instalado (`packages.txt` lista `tesseract-ocr` + `tesseract-oc
 
 ## Limitações conhecidas
 
-- **RG e Endereço não estão no escopo** desta versão
+- **Endereço não está no escopo** desta versão (depende de NER pouco confiável)
 - Nomes dependem de NER; pode haver falso positivo/negativo — revise na tabela antes de aplicar
 - Limite de tamanho de arquivo configurável via variável de ambiente `MAX_FILE_SIZE_MB` (padrão 200MB)
 
