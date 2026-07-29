@@ -1,32 +1,14 @@
-# Versões nativas TRAVADAS numa faixa estável (não bleeding-edge). O resolver
-# vinha puxando lançamentos muito novos e o app segfaultava no Streamlit Cloud.
-#
-# CAUSA RAIZ confirmada por faulthandler (2026-07-10): o segfault era em
-# pyarrow 25.0.0 (convert_column / dataframe_to_arrays), disparado pelo
-# st.data_editor ao converter o DataFrame da tabela para Arrow. Travar o
-# pyarrow numa versão madura resolve. numpy/pandas/pymupdf ficam travados
-# também por precaução (também vinham bleeding-edge: numpy 2.4, pandas 3.0).
 streamlit>=1.41,<1.60
-# O visualizador de PDF agora é componente próprio (tarjador/ui/pdf_review,
-# pdf.js vendorado) — streamlit-pdf-viewer saiu nesta branch.
 pyarrow>=16,<20
 numpy>=2.0,<2.3
 pandas>=2.2,<2.3
 pymupdf>=1.25,<1.26
 presidio-analyzer>=2.2
-# Já vinha transitivo via presidio-analyzer; agora importado direto em
-# _detector_full.py (classifica Celular x Telefone e valida DDD de verdade,
-# em vez de só "começa com 9") — fixado explícito para não depender de como
-# o presidio-analyzer declara essa dependência no futuro.
 phonenumbers>=8.13
 spacy>=3.8,<3.9
 https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.8.0/pt_core_news_sm-3.8.0-py3-none-any.whl
 pydantic>=2.10
 pydantic-settings>=2.7
-# NER jurídico (BERT LeNER-Br) — opcional, carregado sob demanda.
-# Requer Python 3.12 no Streamlit Cloud (Advanced settings): o PyTorch não tem
-# wheel para 3.14. O sufixo "+cpu" só existe no índice do PyTorch, então força
-# o build CPU (evita o wheel CUDA, gigante, que poderia estourar o build).
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.13.0+cpu
 transformers==5.13.0
