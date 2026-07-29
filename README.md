@@ -33,22 +33,23 @@ Tipos a detectar, uso de IA e demais opções ficam configuráveis na barra late
 
 - **Tarja real** — o conteúdo é removido do stream do PDF (`apply_redactions` do PyMuPDF), não é um retângulo por cima; não dá para recuperar via copiar/colar ou extração de texto
 - **Metadados limpos** — título, autor, ferramenta e datas de criação/edição são apagados do PDF gerado
-- **Processamento local** — nada é enviado para serviços de terceiros; a análise roda inteiramente no servidor que hospeda o app; na versão desktop, tudo roda na máquina do usuário.
+- **Processamento local** — nada é enviado para serviços de terceiros; a análise roda inteiramente no servidor que hospeda o app
 - **Nada gravado em disco** — o PDF trafega e é processado em memória (bytes em RAM/`BytesIO`, sem arquivo temporário no servidor); ao fim da sessão (aba fechada ou processo reiniciado), o conteúdo é descartado
 
 ## Estrutura
 
 ```
-app.py                 # UI Streamlit (upload, tabela de revisão, PDF interativo, download)
-tarjador/core/
-├── validator.py        # valida tamanho, senha, texto extraível
-├── detector.py          # fachada dos detectores (regex BR + Presidio + spaCy/BERT)
-├── _detector_full.py    # implementação da detecção (CPF/CNPJ/telefone/e-mail/nome)
-├── _ner_bert.py          # NER com BERTimbau (LeNER-Br)
-├── redactor.py           # PyMuPDF: tarja real + limpeza de metadados
-└── pipeline.py            # orquestra analyze() / apply_redactions()
-tarjador/api/           # API HTTP (FastAPI) equivalente, com autenticação por chave —
-                        # não deployada (código pronto, roda à parte via uvicorn)
+app.py                    # UI Streamlit (upload, tabela de revisão, PDF interativo, download)
+tarjador/
+├── core/
+│   ├── validator.py       # valida tamanho, senha, texto extraível
+│   ├── detector.py        # fachada dos detectores (regex BR + Presidio + spaCy/BERT)
+│   ├── _detector_full.py  # implementação da detecção (CPF/CNPJ/telefone/e-mail/nome)
+│   ├── _ner_bert.py       # NER com BERTimbau (LeNER-Br)
+│   ├── redactor.py        # PyMuPDF: tarja real + limpeza de metadados
+│   └── pipeline.py        # orquestra analyze() / apply_redactions()
+├── ui/pdf_review/         # visualizador de PDF interativo (componente próprio, pdf.js vendorado)
+└── api/                   # API HTTP (FastAPI) — em construção, não deployada
 ```
 
 ## Como rodar localmente
@@ -71,11 +72,15 @@ Requer Tesseract instalado (`packages.txt` lista `tesseract-ocr` + `tesseract-oc
 ## Licença
 
 Tarjador — remoção de dados pessoais em documentos PDF
-Copyright (C) 2026 Mário Salaroli
+Copyright (C) 2026 Mario Salaroli
 
 Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo sob os
 termos da **GNU Affero General Public License, versão 3** (ver [LICENSE](LICENSE)),
 conforme publicada pela Free Software Foundation.
+
+Ele é distribuído na esperança de que seja útil, mas **sem nenhuma garantia** —
+sem sequer a garantia implícita de comerciabilidade ou adequação a uma finalidade
+específica.
 
 A AGPL é a licença exigida pelo [PyMuPDF](https://github.com/pymupdf/PyMuPDF),
 que é o motor de leitura e tarja de PDF do projeto: o copyleft alcança a obra
