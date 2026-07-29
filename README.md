@@ -77,10 +77,6 @@ Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo so
 termos da **GNU Affero General Public License, versão 3** (ver [LICENSE](LICENSE)),
 conforme publicada pela Free Software Foundation.
 
-Ele é distribuído na esperança de que seja útil, mas **sem nenhuma garantia** —
-sem sequer a garantia implícita de comerciabilidade ou adequação a uma finalidade
-específica.
-
 A AGPL é a licença exigida pelo [PyMuPDF](https://github.com/pymupdf/PyMuPDF),
 que é o motor de leitura e tarja de PDF do projeto: o copyleft alcança a obra
 combinada. Na prática isso significa que quem usar o Tarjador — inclusive como
