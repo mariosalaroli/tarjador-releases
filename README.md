@@ -33,7 +33,7 @@ Tipos a detectar, uso de IA e demais opções ficam configuráveis na barra late
 
 - **Tarja real** — o conteúdo é removido do stream do PDF (`apply_redactions` do PyMuPDF), não é um retângulo por cima; não dá para recuperar via copiar/colar ou extração de texto
 - **Metadados limpos** — título, autor, ferramenta e datas de criação/edição são apagados do PDF gerado
-- **Processamento local** — nada é enviado para serviços de terceiros; a análise roda inteiramente no servidor que hospeda o app
+- **Processamento local** — nada é enviado para serviços de terceiros; a análise roda inteiramente no servidor que hospeda o app; na versão desktop, tudo roda na máquina do usuário.
 - **Nada gravado em disco** — o PDF trafega e é processado em memória (bytes em RAM/`BytesIO`, sem arquivo temporário no servidor); ao fim da sessão (aba fechada ou processo reiniciado), o conteúdo é descartado
 
 ## Estrutura
