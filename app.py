@@ -929,10 +929,20 @@ with st.sidebar:
                  "quiser o máximo de garantia e não precisar copiar texto do "
                  "PDF final.",
         )
-    if st.button("ℹ️ Mais informações", use_container_width=True):
-        _mostrar_mais_informacoes()
-    # Download do Tarjador Desktop. Só nos deploys WEB: dentro do app
-    # instalado (TARJADOR_EDITION definida pelo lançador) oferecer "instale no
+    # "Mais informações" aparece nos dois lugares, mas com PESO diferente, e
+    # por isso a chamada é duplicada em vez de ficar aqui fora.
+    #
+    # O rodapé empilhava três barras de largura cheia — Avançado, Mais
+    # informações e a terceira (download na web, fechar no desktop) — todas
+    # com o mesmo peso, embora "configurar", "ler" e "sair" não tenham a mesma
+    # importância. Na WEB o "Mais informações" vira link discreto e desce para
+    # depois do download, que é a ação que o visitante veio fazer. No DESKTOP
+    # ele continua barra: lá a terceira barra é o "Fechar o Tarjador", e
+    # rebaixar qualquer um dos dois prejudicaria a descoberta de como sair do
+    # aplicativo — que foi o motivo de o botão existir.
+    #
+    # Download do Tarjador Desktop: só nos deploys WEB. Dentro do app instalado
+    # (TARJADOR_EDITION definida pelo lançador) oferecer "instale no
     # computador" seria ruído. As URLs são estáveis por construção —
     # `releases/latest/download/` + nome de asset SEM versão (o build publica
     # cópias com esses nomes): versão nova = release nova, zero mudança aqui.
@@ -954,7 +964,8 @@ with st.sidebar:
         with st.expander("🖥️ Instalar no computador"):
             st.caption(
                 "O documento **nunca sai da sua máquina** — processa tudo "
-                "localmente e funciona sem internet."
+                "localmente, funciona sem internet e abre no navegador "
+                "padrão do seu computador."
             )
             _win, _linux = st.tabs(["🪟 Windows", "🐧 Linux"])
             with _win:
@@ -985,16 +996,25 @@ with st.sidebar:
                     help=_AJUDA_COMPLETA,
                     use_container_width=True,
                 )
-                # A instrução do chmod não é detalhe: sem ela o usuário baixa,
-                # dá dois cliques, não acontece nada e conclui que o arquivo
-                # está quebrado. É o pedágio conhecido do formato AppImage.
+                # A instrução de permitir execução não é detalhe: sem ela o
+                # usuário baixa, dá dois cliques, não acontece nada e conclui
+                # que o arquivo está quebrado. É o pedágio do formato AppImage.
+                #
+                # "nas Propriedades" e não o caminho completo de cliques: o
+                # rótulo exato varia por ambiente (o "permitir execução como um
+                # programa" é do GNOME; KDE e XFCE chamam de outro jeito).
+                # Apontar a janela certa e deixar o usuário achar a opção
+                # funciona em todos, e cabe numa linha.
                 st.caption(
-                    "Arquivo único, 64 bits. Baixe, clique com o botão direito "
-                    "→ Propriedades → Permissões → **permitir execução como "
-                    "programa**, e abra."
+                    "AppImage (64 bits) — baixe, permita a execução do arquivo "
+                    "nas Propriedades e abra."
                 )
             st.caption(f"[Todas as versões e verificação SHA-256]({_REL}).")
+        if st.button("ℹ️ Mais informações", type="tertiary"):
+            _mostrar_mais_informacoes()
     else:
+        if st.button("ℹ️ Mais informações", use_container_width=True):
+            _mostrar_mais_informacoes()
         # Rodando no Tarjador Desktop: mostrar edição e versão. Sem isto, um
         # chamado de suporte começa com "qual versão você tem?" e o usuário
         # não tem como saber (a versão existe nas propriedades do .exe, mas
