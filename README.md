@@ -71,7 +71,7 @@ Requer Tesseract instalado (`packages.txt` lista `tesseract-ocr` + `tesseract-oc
 ## Licença
 
 Tarjador — remoção de dados pessoais em documentos PDF
-Copyright (C) 2026 Mario Salaroli
+Copyright (C) 2026 Mário Salaroli
 
 Este programa é software livre: você pode redistribuí-lo e/ou modificá-lo sob os
 termos da **GNU Affero General Public License, versão 3** (ver [LICENSE](LICENSE)),
