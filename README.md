@@ -17,7 +17,7 @@ Ferramenta para tarjar informações pessoais em PDFs, em conformidade com a LGP
 1. Envie um PDF
 2. Revise a tabela de informações pessoais encontradas — marque/desmarque cada uma, ou clique diretamente numa informação destacada no PDF pra tarjar/desfazer
 3. Para tarjar algo que a detecção não pegou, mude para o modo **🖌️ Rolo** e pinte por cima do texto no PDF — cria uma tarja manual (clique nela de novo pra remover)
-4. Clique em **Aplicar tarjas e baixar** e baixe o PDF tarjado
+4. Clique em **Aplicar tarjas e baixar** e baixe o PDF tarjado e sanitizado
 
 ## O que é detectado
 
