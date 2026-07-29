@@ -10,7 +10,7 @@ pinned: false
 
 # Tarjador de PDFs
 
-App Streamlit para tarjar (redigir) informações pessoais (LGPD) em PDFs: envie um documento, revise as informações pessoais encontradas numa tabela sincronizada com o PDF, marque/desmarque o que tarjar e baixe a versão final.
+Ferramenta para sanitizar e tarjar (redigir) informações pessoais (LGPD) em PDFs: envie um documento, revise as informações pessoais encontradas, marque/desmarque o que tarjar, adicione tarjas manuais com o Rolo e baixe a versão final tarjada e sanitizada.
 
 ## Como usar
 
