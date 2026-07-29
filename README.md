@@ -10,7 +10,7 @@ pinned: false
 
 # Tarjador de PDFs
 
-Ferramenta para sanitizar e tarjar (redigir) informações pessoais (LGPD) em PDFs: envie um documento, revise as informações pessoais encontradas, marque/desmarque o que tarjar, adicione tarjas manuais com o Rolo e baixe a versão final tarjada e sanitizada.
+Ferramenta para tarjar informações pessoais em PDFs, em conformidade com a LGPD. Envie um documento, revise as informações pessoais identificadas, marque ou desmarque o que deseja tarjar, adicione tarjas manuais, se desejar, e baixe o PDF final sanitizado.
 
 ## Como usar
 
