@@ -8,6 +8,7 @@ faulthandler.enable()
 
 import os
 import re
+import threading
 
 import streamlit as st
 
@@ -50,6 +51,30 @@ with _boot.container():
                                             cpf_descaracterizado)
 _boot.empty()
 st.session_state["_tarjador_pronto"] = True
+
+# ---------------------------------------------------------------------------
+# Encerramento pedido pelo usuário (só no desktop — botão na barra lateral)
+# ---------------------------------------------------------------------------
+# Fica AQUI, antes de tudo, para a despedida ocupar a página inteira em vez de
+# aparecer no meio do app.
+#
+# A saída é agendada, não imediata: `os._exit` derruba o processo na hora, e a
+# página em construção nunca chegaria ao navegador — o usuário clicaria em
+# "Sim" e veria erro de conexão, que é exatamente a impressão de queda que
+# este botão existe para evitar. O `st.stop()` fecha a resposta e os dois
+# segundos dão folga para ela trafegar antes de o processo sumir.
+#
+# `os._exit` e não `sys.exit`: o segundo levanta SystemExit, que o servidor do
+# Streamlit captura e engole — o processo continuaria vivo, que é o problema
+# original.
+if st.session_state.get("_encerrar_app"):
+    # Uma frase só. Instruções de como reabrir foram descartadas: elas mudam
+    # com o sistema (Menu Iniciar no Windows, arquivo .AppImage no Linux) e
+    # ninguém precisa delas — quem acabou de fechar sabe como abriu.
+    st.success("O Tarjador foi encerrado.")
+    print("[app] encerramento pedido pelo usuário", flush=True)
+    threading.Timer(2.0, os._exit, [0]).start()
+    st.stop()
 
 # Tipos cuja localização vem de um RETÂNGULO (não de busca por texto): selo de
 # assinatura e imagem com cara de assinatura/carimbo. Ambos são desenhados no
@@ -978,6 +1003,36 @@ with st.sidebar:
         _ver = os.environ.get("TARJADOR_VERSION", "")
         st.caption(f"Tarjador Desktop · Edição {_ed}"
                    + (f" · v{_ver}" if _ver else ""))
+
+        # Fechar o app. Não é conveniência: o Tarjador é um SERVIDOR, e fechar
+        # a aba do navegador só desconecta o cliente — o processo continua
+        # vivo, sem janela, sem ícone, segurando a memória do spaCy e do
+        # Presidio. Sem este botão a única saída é o Gerenciador de Tarefas, e
+        # foi essa invisibilidade que fez uma instalação por cima do app aberto
+        # corromper a pasta em Program Files.
+        #
+        # NUNCA na web: lá o servidor é compartilhado, e um visitante clicando
+        # derrubaria o Tarjador para todo mundo. Por isso vive dentro do
+        # `else` de `TARJADOR_EDITION`, que só o lançador do desktop define.
+        #
+        # Dois passos de propósito: o clique é irreversível e leva junto a
+        # revisão em andamento, que num documento real são centenas de
+        # ocorrências marcadas à mão.
+        if st.session_state.get("_confirmar_saida"):
+            st.warning("Encerrar o Tarjador?")
+            _c1, _c2 = st.columns(2)
+            if _c1.button("Sim", use_container_width=True, key="_sair_sim"):
+                st.session_state["_encerrar_app"] = True
+                st.rerun()
+            if _c2.button("Não", use_container_width=True, key="_sair_nao"):
+                st.session_state["_confirmar_saida"] = False
+                st.rerun()
+        elif st.button("⏻ Fechar o Tarjador", use_container_width=True,
+                       key="_sair",
+                       help="Encerra o programa. A revisão em andamento é "
+                            "perdida — baixe o PDF antes, se ainda não baixou."):
+            st.session_state["_confirmar_saida"] = True
+            st.rerun()
 
 # Começa a baixar o modelo de IA JÁ, em segundo plano, enquanto o usuário
 # escolhe o arquivo — em vez de só quando a análise pedir. Em rede lenta (o
