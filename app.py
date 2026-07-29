@@ -982,7 +982,11 @@ with st.sidebar:
                          "Instalar por cima da Leve atualiza.",
                     use_container_width=True,
                 )
-                st.caption("Windows 10/11, 64 bits.")
+                st.caption(
+                    "Windows 10/11, 64 bits. O instalador ainda não é assinado "
+                    "digitalmente — se o SmartScreen avisar, clique em **Mais "
+                    "informações → Executar assim mesmo**."
+                )
             with _linux:
                 st.link_button(
                     "⬇️ Edição Leve — 202 MB",
